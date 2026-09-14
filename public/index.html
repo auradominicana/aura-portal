@@ -4,52 +4,66 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Portal Aura</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#1F3864;--navy-dark:#0D1F3C;--red:#C62828;--green:#2E7D32;--amber:#B45309;--bg:#F4F6FA}
+  :root{--navy:#0D2054;--navy2:#162B6E;--teal:#00B5A3;--teal2:#00D4C0;--orange:#F4891F;--red:#E03131;--green:#2F9E44;--bg:#F4F6FA;--text:#182645;--muted:#8A97AE}
   *{box-sizing:border-box}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:#1F2937;min-height:100vh}
-  header{background:linear-gradient(145deg,var(--navy) 0%,var(--navy-dark) 100%);color:#fff;padding:22px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-  header .logo{font-size:20px;font-weight:800}
-  header .logo .dot{color:var(--red)}
+  body{margin:0;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  header{background:linear-gradient(155deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding:0;position:relative;overflow:hidden}
+  header::before{content:'';position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(0,181,163,.22) 0%,transparent 70%);top:-200px;right:-80px}
+  .header-inner{position:relative;max-width:1080px;margin:0 auto;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+  header .logo img{height:26px;display:block}
   header .who{display:flex;align-items:center;gap:14px;font-size:13px}
-  header button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:700}
-  header button:hover{background:rgba(255,255,255,.18)}
-  main{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
-  h2{font-size:15px;color:#5A6A7A;text-transform:uppercase;letter-spacing:.5px;margin:0 0 16px}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:40px}
-  .card{background:#fff;border-radius:14px;padding:24px;box-shadow:0 2px 10px rgba(15,35,70,.08);cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid #EEF1F6}
-  .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(15,35,70,.14)}
-  .card .icn{font-size:34px;margin-bottom:10px}
-  .card h3{margin:0 0 6px;font-size:17px;color:var(--navy)}
-  .card p{margin:0;font-size:12.5px;color:#7A8CA0;line-height:1.45}
-  .card .go{margin-top:14px;font-size:12px;font-weight:700;color:var(--red)}
+  header .who .name{font-weight:700}
+  header button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;padding:8px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:700;font-family:inherit;transition:background .15s}
+  header button:hover{background:rgba(255,255,255,.2)}
 
-  .score-wrap{background:#fff;border-radius:14px;padding:24px 26px;box-shadow:0 2px 10px rgba(15,35,70,.08);display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+  .greeting-band{position:relative;max-width:1080px;margin:0 auto;padding:26px 28px 30px}
+  .greeting-band h1{margin:0 0 6px;font-size:24px;font-weight:800}
+  .greeting-band .msg{font-size:13.5px;color:rgba(255,255,255,.82);font-weight:500;max-width:560px;line-height:1.5}
+
+  main{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
+  h2{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:0 0 16px;font-weight:800}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-bottom:40px}
+  .card{background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 10px rgba(13,32,84,.07);cursor:pointer;transition:transform .15s,box-shadow .15s;border:1px solid #EEF1F6}
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(13,32,84,.14)}
+  .card .icn{font-size:32px;margin-bottom:10px}
+  .card h3{margin:0 0 6px;font-size:16.5px;color:var(--navy);font-weight:800}
+  .card p{margin:0;font-size:12.5px;color:var(--muted);line-height:1.45}
+  .card .go{margin-top:14px;font-size:12px;font-weight:800;color:var(--teal)}
+
+  .score-wrap{background:#fff;border-radius:16px;padding:24px 26px;box-shadow:0 2px 10px rgba(13,32,84,.07);display:flex;align-items:center;gap:26px;flex-wrap:wrap;border:1px solid #EEF1F6}
   .score-circle{position:relative;width:96px;height:96px;flex-shrink:0}
   .score-circle svg{transform:rotate(-90deg)}
   .score-circle .bg{fill:none;stroke:#EDF1F7;stroke-width:9}
   .score-circle .fill{fill:none;stroke-width:9;stroke-linecap:round;stroke-dasharray:251.2;transition:stroke-dashoffset .8s ease}
   .score-circle .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .score-circle .num .v{font-size:24px;font-weight:800}
-  .score-circle .num .p{font-size:9px;color:#9AAAB4}
+  .score-circle .num .v{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace}
+  .score-circle .num .p{font-size:9px;color:var(--muted)}
   .score-info{flex:1;min-width:200px}
-  .score-title{font-size:11px;font-weight:700;color:#9AAAB4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+  .score-title{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
   .score-label{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:12px}
   .score-bars{display:flex;flex-direction:column;gap:8px}
-  .score-bar-row{display:grid;grid-template-columns:110px 1fr 40px;align-items:center;gap:10px;font-size:11.5px}
-  .score-bar-row .lbl{color:#5A6A7A}
+  .score-bar-row{display:grid;grid-template-columns:130px 1fr 60px;align-items:center;gap:10px;font-size:11.5px}
+  .score-bar-row .lbl{color:var(--muted);font-weight:600}
   .score-bar-row .bar{height:6px;background:#EDF1F7;border-radius:999px;overflow:hidden}
   .score-bar-row .fill{height:100%;border-radius:999px}
-  .score-bar-row .pct{text-align:right;font-weight:700;color:var(--navy)}
-  .muted-note{font-size:11.5px;color:#9AAAB4;margin-top:14px}
+  .score-bar-row .pct{text-align:right;font-weight:800;color:var(--navy);font-family:'JetBrains Mono',monospace}
+  .muted-note{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.5}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">AURA <span class="dot">•</span> Portal</div>
-  <div class="who">
-    <span id="whoName"></span>
-    <button onclick="salir()">Cerrar sesión</button>
+  <div class="header-inner">
+    <div class="logo"><img src="/logo-aura-white.png" alt="Aura"></div>
+    <div class="who">
+      <span class="name" id="whoName"></span>
+      <button onclick="salir()">Cerrar sesión</button>
+    </div>
+  </div>
+  <div class="greeting-band">
+    <h1 id="saludo">Hola</h1>
+    <div class="msg" id="mensajeDia"></div>
   </div>
 </header>
 <main>
@@ -86,11 +100,50 @@
 </main>
 
 <script>
+const MENSAJES_DIA = [
+  'Lo que se cuida a tiempo, no se convierte en problema. Hoy es un buen día para adelantarte.',
+  'Cada cobro al día y cada instalación completada es un cliente que confía más en Aura.',
+  'La constancia en los detalles es lo que sostiene a todo un equipo — gracias por cuidarlos.',
+  'Un buen seguimiento hoy evita una llamada incómoda mañana. Vas por buen camino.',
+  'Coordinar bien no siempre se nota, pero siempre se siente. Sigue así.',
+  'Cada cliente atendido a tiempo es una pequeña victoria — hoy tendrás varias.',
+  'Lo que no se mide, se olvida. Lo que tú coordinas, no se te escapa.',
+  'El equipo rinde mejor cuando alguien está pendiente de que nada se quede a medias — esa eres tú.',
+  'Hoy es un buen día para dejar todo un poco más ordenado de como lo encontraste.',
+  'La calma con la que resuelves las cosas es la que mantiene a todos enfocados.',
+  'Cada detalle administrativo bien cerrado es tiempo que el equipo se ahorra después.',
+  'No hace falta que se note el esfuerzo para que valga — y el tuyo vale.',
+  'Un cliente bien atendido después de la venta es la mejor publicidad que existe.',
+  'Hoy, como cada día, gracias por sostener lo que nadie más ve.',
+  'Las cosas que fluyen bien, casi siempre tienen a alguien detrás cuidándolas de cerca.',
+  'La organización de hoy es la tranquilidad de mañana.',
+  'Revisar, confirmar, dar seguimiento — parece poco, pero así se sostiene todo un equipo.',
+  'Aura crece cuando cada parte del proceso se cuida igual de bien — gracias por la tuya.',
+  'Un buen día empieza por saber exactamente qué hay que resolver — y tú siempre lo sabes.',
+  'Lo urgente pasa, lo importante se queda — y tú sabes distinguirlos muy bien.',
+];
+
+function saludoHora() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Buenos días';
+  if (h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+function mensajeDelDia() {
+  const hoy = new Date();
+  const inicioAnio = new Date(hoy.getFullYear(), 0, 0);
+  const diaDelAnio = Math.floor((hoy - inicioAnio) / 86400000);
+  return MENSAJES_DIA[diaDelAnio % MENSAJES_DIA.length];
+}
+
 async function cargarMe() {
   const r = await fetch('/api/me');
   const d = await r.json();
   if (!d.ok) { location.href = '/login.html'; return; }
+  const primerNombre = (d.nombre || '').split(' ')[0];
   document.getElementById('whoName').textContent = d.nombre + ' · Admin';
+  document.getElementById('saludo').textContent = `${saludoHora()}, ${primerNombre} 👋`;
+  document.getElementById('mensajeDia').textContent = mensajeDelDia();
 }
 
 async function cargarSistemas() {
@@ -117,7 +170,7 @@ async function entrar(sistema) {
   else alert('No se pudo entrar: ' + (d.error || 'error desconocido'));
 }
 
-function colorScore(s) { return s >= 80 ? '#2E7D32' : s >= 60 ? '#B45309' : '#C62828'; }
+function colorScore(s) { return s >= 80 ? 'var(--green)' : s >= 60 ? 'var(--orange)' : 'var(--red)'; }
 function labelScore(s) { return s >= 80 ? '🟢 Excelente' : s >= 60 ? '🟡 Regular' : '🔴 Requiere atención'; }
 
 async function cargarScore() {
