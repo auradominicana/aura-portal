@@ -128,8 +128,9 @@ app.post('/api/portal/launch', requireHubAuth, (req, res) => {
   res.json({ ok: true, url: `${sistema.url}${sistema.ssoPath}?token=${encodeURIComponent(token)}` });
 });
 
-// ── Score General de la coordinadora — promedio de Cobros (Score de Gestión)
-//    y Operaciones (Score Analista Operativo), leídos en vivo de cada sistema ──
+// ── Score General de la coordinadora — promedio de 3 partes, leídas en vivo:
+//    Cobros (Score de Gestión), Operaciones (Score Analista Operativo) y
+//    Contratos al día (Aura Care/Residence, % del total con contrato) ──
 app.get('/api/score-general', requireHubAuth, async (req, res) => {
   async function leer(url) {
     try {
@@ -138,16 +139,21 @@ app.get('/api/score-general', requireHubAuth, async (req, res) => {
       return await r.json();
     } catch (e) { return null; }
   }
-  const [contable, operativo] = await Promise.all([
+  const [contable, operativo, kpiContratos] = await Promise.all([
     leer(`${SISTEMAS.cobros.url}/api/score-gestion/public`),
     leer(`${SISTEMAS.operaciones.url}/api/score-operativo/public`),
+    leer(`${SISTEMAS.operaciones.url}/api/kpi-contratos/public`),
   ]);
-  const scores = [contable, operativo].filter(s => s && typeof s.score === 'number').map(s => s.score);
+  const contratos = (kpiContratos && typeof kpiContratos.pctAlDia === 'number')
+    ? { score: kpiContratos.pctAlDia, label: `${kpiContratos.alDia ?? '—'} al día · ${kpiContratos.vencidos ?? '—'} vencidos`, actualizadoEn: kpiContratos.actualizadoEn }
+    : null;
+  const scores = [contable, operativo, contratos].filter(s => s && typeof s.score === 'number').map(s => s.score);
   const general = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
   res.json({
     general,
     contable: contable || { score: null, label: 'Sin datos aún' },
     operativo: operativo || { score: null, label: 'Sin datos aún' },
+    contratos: contratos || { score: null, label: 'Sin datos aún' },
   });
 });
 

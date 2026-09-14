@@ -95,6 +95,11 @@
           <div class="bar"><div class="fill" id="barOperativo" style="width:0%;background:#9AAAB4"></div></div>
           <span class="pct" id="pctOperativo">—</span>
         </div>
+        <div class="score-bar-row">
+          <span class="lbl">📄 Contratos al día</span>
+          <div class="bar"><div class="fill" id="barContratos" style="width:0%;background:#9AAAB4"></div></div>
+          <span class="pct" id="pctContratos">—</span>
+        </div>
       </div>
     </div>
   </div>
@@ -221,9 +226,10 @@ async function cargarScore() {
     };
     setBar('barContable', 'pctContable', d.contable);
     setBar('barOperativo', 'pctOperativo', d.operativo);
+    setBar('barContratos', 'pctContratos', d.contratos);
 
     document.getElementById('scoreNote').textContent =
-      'Promedio simple entre el Score de Gestión de Cobros y el Score de Analista Operativo del Rutero. Se actualiza cada vez que alguien abre esos dashboards.';
+      'Promedio simple entre el Score de Gestión de Cobros, el Score de Analista Operativo del Rutero y el % de Contratos al día. Se actualiza cada vez que alguien abre esos dashboards.';
   } catch (e) {
     document.getElementById('scGenLabel').textContent = 'No se pudo cargar el score';
   }
