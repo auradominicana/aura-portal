@@ -151,6 +151,17 @@ app.get('/api/score-general', requireHubAuth, async (req, res) => {
   });
 });
 
+// ── KPI de Contratos (al día / vencidos) — pedido puntual, se muestra aparte
+//    del Score General, no se promedia con los demás ──
+app.get('/api/kpi-contratos', requireHubAuth, async (req, res) => {
+  try {
+    const r = await fetch(`${SISTEMAS.operaciones.url}/api/kpi-contratos/public?token=${encodeURIComponent(OPS_PUBLIC_TOKEN)}`, { signal: AbortSignal.timeout(8000) });
+    res.json(r.ok ? await r.json() : { alDia: null, vencidos: null, porVencer30: null, pctAlDia: null });
+  } catch (e) {
+    res.json({ alDia: null, vencidos: null, porVencer30: null, pctAlDia: null });
+  }
+});
+
 // ── Estáticos ─────────────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', requireHubAuth, (req, res) => res.sendFile(path.join(__dirname, 'public/index.html')));
