@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal Aura</title>
+<style>
+  :root{--navy:#1F3864;--navy-dark:#0D1F3C;--red:#C62828}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    background:linear-gradient(145deg,var(--navy) 0%,var(--navy-dark) 100%);
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card{background:#fff;border-radius:16px;padding:36px 32px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+  .logo{text-align:center;margin-bottom:22px}
+  .logo .dot{color:var(--red)}
+  h1{font-size:20px;color:var(--navy);text-align:center;margin:0 0 4px}
+  .sub{text-align:center;color:#7A8CA0;font-size:12.5px;margin-bottom:26px}
+  label{font-size:11px;font-weight:700;color:#7A8CA0;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px}
+  input{width:100%;padding:11px 12px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:14px;margin-bottom:16px}
+  input:focus{outline:none;border-color:var(--navy)}
+  button{width:100%;padding:12px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+  button:hover{background:var(--navy-dark)}
+  #err{display:none;color:var(--red);font-size:12.5px;text-align:center;margin-top:14px;font-weight:600}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><span style="font-size:26px;font-weight:800;color:var(--navy)">AURA<span class="dot">•</span></span></div>
+    <h1>Portal Aura</h1>
+    <div class="sub">Ventas · Cobros · Operaciones</div>
+    <form id="f">
+      <label>Correo</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label>Contraseña</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <div id="err">Correo o contraseña incorrectos</div>
+  </div>
+<script>
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (d.ok) { location.href = '/'; } else { err.style.display = 'block'; }
+  } catch (e2) { err.style.display = 'block'; }
+});
+</script>
+</body>
+</html>
