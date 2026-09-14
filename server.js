@@ -15,6 +15,13 @@ const PORT = process.env.PORT || 4200;
 
 // ── Sistemas del portal ─────────────────────────────────────────────
 const SISTEMAS = {
+  ventas: {
+    nombre: 'Ventas',
+    icono: '🤝',
+    descripcion: 'Para validar información de un cliente o lead puntual',
+    url: process.env.CRM_URL || 'https://crm.aura.com.do',
+    ssoPath: '/auth/sso',
+  },
   cobros: {
     nombre: 'Cobros',
     icono: '💳',
