@@ -72,6 +72,23 @@
   </div>
 </header>
 <main>
+  <h2>Resumen · Contable y Operativa</h2>
+  <div class="contratos-grid" id="resumenGrid" style="margin-bottom:36px">
+    <div class="contrato-tile" style="text-align:center">
+      <div class="num" id="rsContableVal" style="font-size:40px">—</div>
+      <div class="lbl" style="margin-top:8px;font-size:13px">💳 Gestión Contable</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px" id="rsContableLabel">Cargando...</div>
+    </div>
+    <div class="contrato-tile" style="text-align:center">
+      <div class="num" id="rsOperativoVal" style="font-size:40px">—</div>
+      <div class="lbl" style="margin-top:8px;font-size:13px">🔧 Gestión Operativa</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:4px" id="rsOperativoLabel">Cargando...</div>
+    </div>
+  </div>
+
+  <!-- Score General (ponderado, 6 componentes) — oculto por ahora a pedido de Laura,
+       se deja el código listo por si se reactiva más adelante. -->
+  <div id="scoreGeneralSection" style="display:none">
   <h2>Score General · Coordinadora Administrativa</h2>
   <div class="score-wrap" id="scoreWrap">
     <div class="score-circle">
@@ -119,6 +136,7 @@
     </div>
   </div>
   <div class="muted-note" id="scoreNote"></div>
+  </div>
 
   <h2 style="margin-top:36px">Contratos · Aura Care / Residence</h2>
   <div class="contratos-grid" id="contratosGrid">
@@ -225,6 +243,17 @@ async function cargarScore() {
     const r = await fetch('/api/score-general');
     const d = await r.json();
     const circum = 251.2;
+
+    // ── Resumen simple: Contable y Operativa por separado ──
+    const setResumen = (valId, lblId, s) => {
+      const val = s && typeof s.score === 'number' ? s.score : null;
+      const valEl = document.getElementById(valId), lblEl = document.getElementById(lblId);
+      if (val === null) { valEl.textContent = '—'; valEl.style.color = 'var(--muted)'; lblEl.textContent = 'Sin datos aún'; return; }
+      valEl.textContent = val; valEl.style.color = colorScore(val);
+      lblEl.textContent = s.label || '';
+    };
+    setResumen('rsContableVal', 'rsContableLabel', d.contable);
+    setResumen('rsOperativoVal', 'rsOperativoLabel', d.operativo);
 
     if (d.general !== null) {
       const color = colorScore(d.general);
