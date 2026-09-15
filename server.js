@@ -128,9 +128,18 @@ app.post('/api/portal/launch', requireHubAuth, (req, res) => {
   res.json({ ok: true, url: `${sistema.url}${sistema.ssoPath}?token=${encodeURIComponent(token)}` });
 });
 
-// ── Score General de la coordinadora — promedio de 3 partes, leídas en vivo:
-//    Cobros (Score de Gestión), Operaciones (Score Analista Operativo) y
-//    Contratos al día (Aura Care/Residence, % del total con contrato) ──
+// ── Score General de la coordinadora — promedio PONDERADO de 6 partes,
+//    leídas en vivo de Cobros y Operaciones. Pesos elegidos así: los dos
+//    scores compuestos (Contable/Operativa, que ya promedian varios
+//    sub-indicadores cada uno) pesan más que las 4 señales puntuales nuevas:
+//      Gestión Contable ......... 20%
+//      Gestión Operativa ........ 20%
+//      Contratos al día ......... 15%
+//      Clientes al día en mnto. . 15%   (inverso de "atrasados +3 meses sin visita")
+//      Backlog de Coordinación .. 15%   (Facturación+SolCobro+Autorizaciones+Suspensiones)
+//      Cartera sana (sin riesgo). 15%   (inverso de candidatos a suspensión, 6+ meses sin pagar)
+const PESOS_SCORE = { contable: 0.20, operativo: 0.20, contratos: 0.15, atrasados: 0.15, backlog: 0.15, suspension: 0.15 };
+
 app.get('/api/score-general', requireHubAuth, async (req, res) => {
   async function leer(url) {
     try {
@@ -139,21 +148,48 @@ app.get('/api/score-general', requireHubAuth, async (req, res) => {
       return await r.json();
     } catch (e) { return null; }
   }
-  const [contable, operativo, kpiContratos] = await Promise.all([
+  const [contable, operativo, kpiContratos, kpisExtraCobros, kpisExtraOp] = await Promise.all([
     leer(`${SISTEMAS.cobros.url}/api/score-gestion/public`),
     leer(`${SISTEMAS.operaciones.url}/api/score-operativo/public`),
     leer(`${SISTEMAS.operaciones.url}/api/kpi-contratos/public`),
+    leer(`${SISTEMAS.cobros.url}/api/kpis-extra/public`),
+    leer(`${SISTEMAS.operaciones.url}/api/kpis-extra-op/public`),
   ]);
   const contratos = (kpiContratos && typeof kpiContratos.pctAlDia === 'number')
     ? { score: kpiContratos.pctAlDia, label: `${kpiContratos.alDia ?? '—'} al día · ${kpiContratos.vencidos ?? '—'} vencidos`, actualizadoEn: kpiContratos.actualizadoEn }
     : null;
-  const scores = [contable, operativo, contratos].filter(s => s && typeof s.score === 'number').map(s => s.score);
-  const general = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+  const atrasados = (kpisExtraOp && typeof kpisExtraOp.pctAlDiaMantenimiento === 'number')
+    ? { score: kpisExtraOp.pctAlDiaMantenimiento, label: `${kpisExtraOp.atrasados ?? '—'} atrasados de ${kpisExtraOp.totalHist ?? '—'}`, actualizadoEn: kpisExtraOp.actualizadoEn }
+    : null;
+  const backlog = (kpisExtraCobros && typeof kpisExtraCobros.backlogScore === 'number')
+    ? { score: kpisExtraCobros.backlogScore, label: `${kpisExtraCobros.backlog?.total ?? '—'} solicitudes pendientes entre áreas`, actualizadoEn: kpisExtraCobros.actualizadoEn }
+    : null;
+  const suspension = (kpisExtraCobros && typeof kpisExtraCobros.pctSinRiesgoSuspension === 'number')
+    ? { score: kpisExtraCobros.pctSinRiesgoSuspension, label: `${kpisExtraCobros.candidatosSuspension ?? '—'} candidatos a suspensión`, actualizadoEn: kpisExtraCobros.actualizadoEn }
+    : null;
+
+  const componentes = { contable, operativo, contratos, atrasados, backlog, suspension };
+  let sumaPonderada = 0, sumaPesos = 0;
+  for (const [key, peso] of Object.entries(PESOS_SCORE)) {
+    const c = componentes[key];
+    if (c && typeof c.score === 'number') { sumaPonderada += c.score * peso; sumaPesos += peso; }
+  }
+  const general = sumaPesos > 0 ? Math.round(sumaPonderada / sumaPesos) : null;
+
   res.json({
     general,
     contable: contable || { score: null, label: 'Sin datos aún' },
     operativo: operativo || { score: null, label: 'Sin datos aún' },
     contratos: contratos || { score: null, label: 'Sin datos aún' },
+    atrasados: atrasados || { score: null, label: 'Sin datos aún' },
+    backlog: backlog || { score: null, label: 'Sin datos aún' },
+    suspension: suspension || { score: null, label: 'Sin datos aún' },
+    // Informativos, no entran al promedio
+    info: {
+      carteraPendiente: kpisExtraCobros?.carteraPendiente ?? null,
+      recuperadoPeriodo: kpisExtraCobros?.recuperadoPeriodo ?? null,
+      averiasPendientes: kpisExtraOp?.averiasPendientes ?? null,
+    },
   });
 });
 

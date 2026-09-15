@@ -100,6 +100,21 @@
           <div class="bar"><div class="fill" id="barContratos" style="width:0%;background:#9AAAB4"></div></div>
           <span class="pct" id="pctContratos">—</span>
         </div>
+        <div class="score-bar-row">
+          <span class="lbl">🗓️ Mnto. al día</span>
+          <div class="bar"><div class="fill" id="barAtrasados" style="width:0%;background:#9AAAB4"></div></div>
+          <span class="pct" id="pctAtrasados">—</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="lbl">🔗 Backlog coordinación</span>
+          <div class="bar"><div class="fill" id="barBacklog" style="width:0%;background:#9AAAB4"></div></div>
+          <span class="pct" id="pctBacklog">—</span>
+        </div>
+        <div class="score-bar-row">
+          <span class="lbl">🛡️ Cartera sana</span>
+          <div class="bar"><div class="fill" id="barSuspension" style="width:0%;background:#9AAAB4"></div></div>
+          <span class="pct" id="pctSuspension">—</span>
+        </div>
       </div>
     </div>
   </div>
@@ -111,6 +126,13 @@
     <div class="contrato-tile"><div class="num" id="ctVencidos" style="color:var(--red)">—</div><div class="lbl">🚫 Contratos vencidos</div></div>
     <div class="contrato-tile"><div class="num" id="ctPorVencer" style="color:var(--orange)">—</div><div class="lbl">⏳ Por vencer (30 días)</div></div>
     <div class="contrato-tile"><div class="num" id="ctPct" style="color:var(--navy)">—</div><div class="lbl">% al día del total con contrato</div></div>
+  </div>
+
+  <h2 style="margin-top:36px">Panorama · Cobros y Operaciones</h2>
+  <div class="contratos-grid" id="panoramaGrid">
+    <div class="contrato-tile"><div class="num" id="pnCartera" style="color:var(--red);font-size:20px">—</div><div class="lbl">💰 Cartera total pendiente</div></div>
+    <div class="contrato-tile"><div class="num" id="pnRecuperado" style="color:var(--green);font-size:20px">—</div><div class="lbl">✅ Recuperado este período</div></div>
+    <div class="contrato-tile"><div class="num" id="pnAverias" style="color:var(--orange)">—</div><div class="lbl">🔧 Averías pendientes</div></div>
   </div>
 
   <h2 style="margin-top:36px">Sistemas</h2>
@@ -227,9 +249,17 @@ async function cargarScore() {
     setBar('barContable', 'pctContable', d.contable);
     setBar('barOperativo', 'pctOperativo', d.operativo);
     setBar('barContratos', 'pctContratos', d.contratos);
+    setBar('barAtrasados', 'pctAtrasados', d.atrasados);
+    setBar('barBacklog', 'pctBacklog', d.backlog);
+    setBar('barSuspension', 'pctSuspension', d.suspension);
 
     document.getElementById('scoreNote').textContent =
-      'Promedio simple entre el Score de Gestión de Cobros, el Score de Analista Operativo del Rutero y el % de Contratos al día. Se actualiza cada vez que alguien abre esos dashboards.';
+      'Promedio ponderado: Gestión Contable 20% · Gestión Operativa 20% · Contratos al día 15% · Mantenimiento al día 15% · Backlog de coordinación 15% · Cartera sana 15%. Se actualiza cada vez que alguien abre esos dashboards.';
+
+    const fmtDOP = n => n === null || n === undefined ? 'Sin datos' : 'DOP ' + Math.round(n).toLocaleString('es-DO');
+    document.getElementById('pnCartera').textContent = fmtDOP(d.info?.carteraPendiente);
+    document.getElementById('pnRecuperado').textContent = fmtDOP(d.info?.recuperadoPeriodo);
+    document.getElementById('pnAverias').textContent = d.info?.averiasPendientes ?? 'Sin datos';
   } catch (e) {
     document.getElementById('scGenLabel').textContent = 'No se pudo cargar el score';
   }
